@@ -10,6 +10,7 @@ import bodyParser from 'body-parser';
 
 import userRoute from './route/userRoute';
 import superRoute from './route/superuserRoute'; 
+import personaModel from './model/personaModel';
 
 dotenv.config();
 
@@ -37,6 +38,9 @@ app.set("io", io);
 app.get('/', (req, res) => {
   res.status(200).send({ status: 'ok' });
 });
+
+// sms features
+
 
 //routes 
 app.use('/api/v1/user', userRoute);

@@ -1,6 +1,6 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
-const UserSchema: Schema = new Schema({
+const FormSchema: Schema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -19,12 +19,6 @@ const UserSchema: Schema = new Schema({
     phone: {
         type: String,
         required: true,
-        trim: true,
-    },
-    email: {
-        type: String,
-        unique: true,
-        lowercase: true,
         trim: true,
     },
     national_id: {
@@ -53,15 +47,20 @@ const UserSchema: Schema = new Schema({
         required: true,
         trim: true
     },
-    image: {
+    passport: {
         type: Schema.ObjectId,
         ref: 'profilePic',
         required: true,
-    }
-},{
-    timestamps: true,
-    versionKey: false
-}
-);
+    },
 
-export default mongoose.model('User', UserSchema);
+    created_at: {
+        type: Date,
+        default: Date.now
+    },
+    updated_at: {
+        type: Date,
+        default: Date.now
+    }
+})
+
+export default mongoose.model('Form', FormSchema)

@@ -13,66 +13,40 @@ const UserSchema: Schema = new Schema({
         required: true,
         minlength: 8, 
     },
-    name: {
-        type: String,
-        required: true,
-    },
-
-    // personal details
-    first_name: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    last_name: {
-        type: String,
-        required: true,
-        trim: true,
-    },
     phone: {
         type: String,
         required: true,
-        trim: true,
+        trim: true, 
+        unique: true, 
     },
-    national_id: {
-        type: String,
-        require: true,
-        unique: true,
-        trim: true
-    },
-    address: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    city: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    country: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    postal_code: {
+    username: {
         type: String,
         required: true,
         trim: true
     },
-    profile_picture: {
-        type: Schema.ObjectId,
-        ref: 'profilePic',
-        required: true,
+    status: {
+        type: String,
+        default: "InActive",
     },
-    created_at: {
-        type: Date,
-        default: Date.now
+    is_form_submitted: {
+        type: Boolean,
+        default: false
     },
-    updated_at: {
-        type: Date,
-        default: Date.now
+    send_sms_notifications: {
+        type: Boolean,
+        default: true
+    } ,
+    account_verified: {
+        type: Boolean,
+        default: false,
+    },
+    deleted_account: {
+        type: Boolean,
+        default: false,
     }
+},{
+    timestamps: true,
+    versionKey: false
 });
 
 export default mongoose.model('User', UserSchema);

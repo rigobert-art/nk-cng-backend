@@ -17,15 +17,14 @@ const superUser = new Schema({
         type: String,
         required: true
     },
-
-    created_at: {
-    type: Date,
-    default: Date.now
-},
-    updated_at: {
-    type: Date,
-    default: Date.now
-}})
+    phone: {
+        type: Number,
+        required: true
+    },
+}, {
+    timestamps: true,
+    versionKey: false
+})
 
 
 export default mongoose.model("superuser", superUser)
