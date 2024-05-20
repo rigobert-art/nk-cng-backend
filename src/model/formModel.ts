@@ -4,54 +4,59 @@ const FormSchema: Schema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
     },
     first_name: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
     },
     last_name: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
     },
     phone: {
         type: String,
-        required: true,
+        required: false,
+        trim: true,
+    },
+    email: {
+        type: String,
+        required: false,
         trim: true,
     },
     national_id: {
         type: String,
-        require: true,
+        require: false,
         unique: true,
         trim: true
     },
     address: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
     },
     city: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
     },
     country: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
     },
-    postal_code: {
+    zip: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
-    passport: {
-        type: Schema.ObjectId,
-        ref: 'profilePic',
-        required: true,
-    },
+    // passport: {
+    //     type: Schema.ObjectId,
+    //     ref: 'profilePic',
+    //     required: true,
+    // },
 
     created_at: {
         type: Date,

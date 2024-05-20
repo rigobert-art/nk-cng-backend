@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema
 
 const superUser = new Schema({
-    name: {
+    username: {
         type: String,
         required: true,
         unique: true
@@ -18,8 +18,8 @@ const superUser = new Schema({
         required: true
     },
     phone: {
-        type: Number,
-        required: true
+        type: String,
+        required: false
     },
 }, {
     timestamps: true,

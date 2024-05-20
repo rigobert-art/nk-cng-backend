@@ -10,7 +10,8 @@ import bodyParser from 'body-parser';
 
 import userRoute from './route/userRoute';
 import superRoute from './route/superuserRoute'; 
-import personaModel from './model/personaModel';
+import loanRoute from './route/loanRoute';
+import formRoute from './route/formRoute';
 
 dotenv.config();
 
@@ -45,6 +46,9 @@ app.get('/', (req, res) => {
 //routes 
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/superuser', superRoute);
+app.use('/api/v1/loan', loanRoute);
+// app.use('/api/v1/sms', smsRoute);
+app.use('/api/v1/form', formRoute);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

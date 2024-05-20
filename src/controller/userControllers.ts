@@ -6,7 +6,7 @@ import { JWT_SECRET } from '../utils/jwtUtils';
 
 export const register = async (req: Request, res: Response) => {
     try {
-        const { email, password, username, phone } = req.body;
+        const { email, password, phone } = req.body;
 
         // Check if the user already exists
         const existingUser = await userModel.findOne({ email });
@@ -14,14 +14,14 @@ export const register = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const existingUsername = await userModel.findOne({ username })
-        if (existingUsername){
-            return res.status(401).json({ message: "Username already taken"})
+        const existingPhone = await userModel.findOne({ phone })
+        if (existingPhone){
+            return res.status(401).json({ message: "Phone Number already taken"})
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = new userModel({ email, password: hashedPassword, username, phone });
+        const newUser = new userModel({ email, password: hashedPassword, phone });
         await newUser.save();
 
         res.status(201).json({ status: 200, message: 'User registered successfully' });

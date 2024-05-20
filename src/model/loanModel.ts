@@ -1,49 +1,61 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 const LoanSchema: Schema = new Schema({
-    user: {
+    form: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'Form',
+        required: false
     },
-    applied_for_loan: {
-        type: Boolean,
-        default: false
+    loan_reference: { //auto generate
+        type: Number,
+        required: true,
+        unique: true,
+        desc: "The reference of the loan"
     },
     loan_type: {
         type: String,
-        enum: ['bank', 'automotive']
+        enum: ['Maendeleo Bank Loan', 'NK CNG Automotive Loan']
     },
-    amount_debt_paid: {
+    total_loan_amount: {
         type: Number,
-        default: 0
+        default: 0,
+        dec: "The total loan the user is applying for"
     },
-    outstanding_debt: {
+    initial_loan_amount: {
         type: Number,
-        default: 0
+        default: 0,
+        desc: "The initial amount the user is required to pay"
     },
-    debt_paid_method: {
-        type: String,
-        enum: ["cash", "bank", "mobile"]
+    loan_duration: {
+        type: Number,
+        default: 0,
+        desc: "The duration of the loan in months"
     },
-    debt_paid_date: {
-        type: Date,
-        default: Date.now
+    loan_tenure: {
+        type: Number,
+        default: 0,
+        desc: "The tenure of the loan in months"
     },
-    next_debt_payment: {
-        type: Date,
-        required: false
+    interest_rate: {
+        type: Number,
+        default: 0,
+        desc: "The interest rate of the loan"
     },
-    ref: {
-        type: String,
-
+    interest_amount: {
+        type: Number,
+        default: 0,
+        desc: "The interest amount of the loan"
     },
-    status: { type: String }
-
+    requirement_to_apply: {
+        type: [String],
+        default: [],
+        desc: "The requirement to apply for the loan"
+    }
 },
+
 {
     timestamps: true,
     versionKey: false
 });
 
-export default mongoose.model('payment', LoanSchema);
+export default mongoose.model('Loan', LoanSchema);

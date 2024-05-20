@@ -21,7 +21,7 @@ const UserSchema: Schema = new Schema({
     },
     username: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     status: {
