@@ -27,4 +27,4 @@ const superUser = new Schema({
 })
 
 
-export default mongoose.model("superuser", superUser)
+export default mongoose.model("Officer", superUser)

@@ -3,7 +3,7 @@
 
 import mongoose, { Schema, Document } from 'mongoose';
 
-const UserSchema: Schema = new Schema({
+const RequestSchema: Schema = new Schema({
     loan: {
         type: Schema.Types.ObjectId,
         ref: 'Loan',
@@ -40,4 +40,4 @@ const UserSchema: Schema = new Schema({
     versionKey: false
 });
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model('Request', RequestSchema);
