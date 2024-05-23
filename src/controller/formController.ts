@@ -16,7 +16,7 @@ export const createForm = async (req: Request, res: Response) => {
             address,
             region,
             zip,
-            email
+            email,
         } = req.body;
 
         if( !firstName ||!lastName ||!phone ||!address ||!region ||!zip ||!email) {
@@ -140,9 +140,13 @@ export const deleteForm = async (req: Request, res: Response) => {
 
 export const uploadPicture = async (req: Request, res: Response) => {
     try {
-        const { userId, imageType } = req.body;
+        const { formId, imageType } = req.body;
 
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
+        if (!formId || !imageType) {
+            return res.status(400).send('User ID and image type are required.');
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(formId)) {
             return res.status(400).json({ message: 'Invalid form ID' });
         }
 
@@ -150,12 +154,10 @@ export const uploadPicture = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        if (!userId || !imageType) {
-            return res.status(400).send('User ID and image type are required.');
-        }
+       
 
         const newImage = new Image({
-            User: userId,
+            Form: formId,
             imageType,
             filename: req.file.originalname,
             contentType: req.file.mimetype,

@@ -1,14 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 const ImageSchema: Schema = new Schema({
-    User: {
+    Form: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Form',
         required: false
     },
     imageType: {
         type: String,
-        enum: ['national_id', 'passport', 'license', 'insurance'],
         required: true
     },
     filename: {

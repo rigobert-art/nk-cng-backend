@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import multer from 'multer';
 import cors from 'cors';
 import http from "http";
 import SocketIO from 'socket.io';
@@ -12,6 +13,8 @@ import userRoute from './route/userRoute';
 import superRoute from './route/superuserRoute'; 
 import loanRoute from './route/loanRoute';
 import formRoute from './route/formRoute';
+
+import Image from './model/ImageModel';
 
 dotenv.config();
 
@@ -41,24 +44,33 @@ app.get('/', (req, res) => {
   res.status(200).send({ status: 'ok' });
 });
 
-// upload profile picture
+// Multer setup for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-app.post("/upload/profile",
-    bodyParser.raw({ type: ["image/jpeg", "image/png"], limit: "5mb" }),
-    (req, res) => {
-        try {
-            console.log(req.body);
-            fs.writeFile("image/jpeg", req.body, (err: any) => {
-                if (err){
-                    throw err;
-                }
-            })
-            res.status(200).send({ message: "Image Uploaded successfully"})
-        } catch (error) {
-            console.log(error);
-        }
+app.post('/api/v1/image/upload', upload.single('file'), async (req, res) => {
+    const { formId, imageType } = req.body;
+
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
     }
-);
+
+    try {
+        const newImage = new Image({
+            formId,
+            imageType,
+            filename: req.file.originalname,
+            contentType: req.file.mimetype,
+            data: req.file.buffer
+        });
+
+        await newImage.save();
+        res.status(200).json(newImage);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Server Error', error });
+    }
+});
 
 // sms features
 
