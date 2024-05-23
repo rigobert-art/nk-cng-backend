@@ -17,6 +17,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;
+const fs = require("fs");
 
 // Middleware
 app.use(bodyParser.json());
@@ -39,6 +40,25 @@ app.set("io", io);
 app.get('/', (req, res) => {
   res.status(200).send({ status: 'ok' });
 });
+
+// upload profile picture
+
+app.post("/upload/profile",
+    bodyParser.raw({ type: ["image/jpeg", "image/png"], limit: "5mb" }),
+    (req, res) => {
+        try {
+            console.log(req.body);
+            fs.writeFile("image/jpeg", req.body, (err: any) => {
+                if (err){
+                    throw err;
+                }
+            })
+            res.status(200).send({ message: "Image Uploaded successfully"})
+        } catch (error) {
+            console.log(error);
+        }
+    }
+);
 
 // sms features
 

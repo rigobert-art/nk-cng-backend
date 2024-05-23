@@ -3,46 +3,54 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Form from '../model/formModel';
 import User from '../model/userModel';
+import Image from "../model/ImageModel"
 
 export const createForm = async (req: Request, res: Response) => {
     try {
         const {
-            // user,
-            first_name,
-            last_name,
+            userId,
+            firstName,
+            lastName,
             phone,
-            // national_id,
+            nationalId,
             address,
-            city,
-            state,
+            region,
             zip,
             email
         } = req.body;
 
+        if( !firstName ||!lastName ||!phone ||!address ||!region ||!zip ||!email) {
+            return res.status(400).json({ message: 'Please fill all the fields' });
+        }
+
         // Validate user ID
-        // if (!mongoose.Types.ObjectId.isValid(user)) {
-        //     return res.status(400).json({ message: 'Invalid user ID' });
-        // }
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
 
         // Check if user exists
-        // const existingUser = await User.findById(user);
-        // if (!existingUser) {
-        //     return res.status(404).json({ message: 'User not found' });
+        // const existingForm = await Form.findOne({ national_id: nationalId });
+        // if (existingForm) {
+        //     return res.status(400).json({ message: 'Form already exists' });
         // }
 
         // Create new form
         const newForm = new Form({
-            // user,
-            first_name,
-            last_name,
-            phone,
-            email,
-            address,
-            city,
-            state,
-            zip,
-            // passport
+            User: userId,
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone,
+            national_id: nationalId,
+            address: address,
+            region: region,
+            zip: zip,
+            email: email,
         });
+
+        const user = User.findByIdAndUpdate( userId, { is_form_submitted: true } )
+        if (!user) {
+            console.log('User not updated!!');
+        }
 
         const savedForm = await newForm.save();
         res.status(201).json(savedForm);
@@ -54,7 +62,7 @@ export const createForm = async (req: Request, res: Response) => {
 
 export const getForms = async (req: Request, res: Response) => {
     try {
-        const forms = await Form.find().populate('user').populate('passport');
+        const forms = await Form.find().sort({ createdAt: -1 });
         res.status(200).json(forms);
     } catch (error) {
         console.error('Error retrieving forms:', error);
@@ -128,3 +136,49 @@ export const deleteForm = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+
+export const uploadPicture = async (req: Request, res: Response) => {
+    try {
+        const { userId, imageType } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid form ID' });
+        }
+
+        if (!req.file){
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        if (!userId || !imageType) {
+            return res.status(400).send('User ID and image type are required.');
+        }
+
+        const newImage = new Image({
+            User: userId,
+            imageType,
+            filename: req.file.originalname,
+            contentType: req.file.mimetype,
+            data: req.file.buffer
+        });
+
+        await newImage.save();
+        res.status(201).send('Image uploaded successfully.');
+       
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const getUserImage = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.body;
+
+        const images = await Image.find({ User: userId });
+        res.status(200).json(images);
+    } catch (error) {
+        console.error('Error getting images:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}

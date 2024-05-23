@@ -1,61 +1,31 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-const LoanSchema: Schema = new Schema({
-    form: {
+const ImageSchema: Schema = new Schema({
+    User: {
         type: Schema.Types.ObjectId,
-        ref: 'Form',
+        ref: 'User',
         required: false
     },
-    loan_reference: { //auto generate
-        type: Number,
-        required: true,
-        unique: true,
-        desc: "The reference of the loan"
-    },
-    loan_type: {
+    imageType: {
         type: String,
-        enum: ['Maendeleo Bank Loan', 'NK CNG Automotive Loan']
+        enum: ['national_id', 'passport', 'license', 'insurance'],
+        required: true
     },
-    total_loan_amount: {
-        type: Number,
-        default: 0,
-        dec: "The total loan the user is applying for"
+    filename: {
+        type: String,
+        required: true
     },
-    initial_loan_amount: {
-        type: Number,
-        default: 0,
-        desc: "The initial amount the user is required to pay"
+    contentType: {
+        type: String,
+        required: true
     },
-    loan_duration: {
-        type: Number,
-        default: 0,
-        desc: "The duration of the loan in months"
+    data: {
+        type: Buffer,
+        required: true
     },
-    loan_tenure: {
-        type: Number,
-        default: 0,
-        desc: "The tenure of the loan in months"
-    },
-    interest_rate: {
-        type: Number,
-        default: 0,
-        desc: "The interest rate of the loan"
-    },
-    interest_amount: {
-        type: Number,
-        default: 0,
-        desc: "The interest amount of the loan"
-    },
-    requirement_to_apply: {
-        type: [String],
-        default: [],
-        desc: "The requirement to apply for the loan"
-    }
-},
-
-    {
+},{
         timestamps: true,
         versionKey: false
     });
 
-export default mongoose.model('Loan', LoanSchema);
+export default mongoose.model('Image', ImageSchema);

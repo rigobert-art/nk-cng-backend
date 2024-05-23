@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 const FormSchema: Schema = new Schema({
-    user: {
+    User: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: false
@@ -26,18 +26,18 @@ const FormSchema: Schema = new Schema({
         required: false,
         trim: true,
     },
-    national_id: {
-        type: String,
-        require: false,
-        unique: true,
-        trim: true
-    },
+    // national_id: {
+    //     type: String,
+    //     require: false,
+    //     unique: true,
+    //     trim: true
+    // },
     address: {
         type: String,
         required: false,
         trim: true,
     },
-    city: {
+    region: {
         type: String,
         required: false,
         trim: true,
@@ -52,11 +52,11 @@ const FormSchema: Schema = new Schema({
         required: false,
         trim: true
     },
-    // passport: {
-    //     type: Schema.ObjectId,
-    //     ref: 'profilePic',
-    //     required: true,
-    // },
+    passport: {
+        type: String,
+        required: false,
+        trim: true
+    },
 
     created_at: {
         type: Date,
