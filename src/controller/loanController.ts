@@ -1,11 +1,22 @@
 import { Request, Response } from 'express';
 import loanModel from '../model/loanModel'; // Import your Loan model
-import userModel from '../model/userModel';
+import User from '../model/userModel';
 import mongoose from 'mongoose';
-import personaModel from '../model/formModel';
+import Form from '../model/formModel';
+import Loan from '../model/loanModel'
+
+import africastalking from 'africastalking';
+
+// Initialize Africa's Talking with your API key and username
+const at = africastalking({
+    apiKey: 'YOUR_API_KEY',
+    username: 'YOUR_USERNAME'
+});
+
+const sms = at.SMS;
 
 // Controller function to create a new loan
-export const createLoan = async (req: Request, res: Response) => {
+export const updateLoan = async (req: Request, res: Response) => {
     try {
         const { loan_reference } = await loanModel.create(req.body);
 
@@ -92,6 +103,24 @@ export const approveLoan = async (req: Request, res: Response) => {
         if (!updatedUser) {
             return res.status(404).json({ message: 'User not found' });
         }
+
+        const phoneNumber = updatedUser.phone; // Assuming the user model has a phoneNumber field
+        const message = `Dear ${updatedUser.first_name} ${updatedUser.last_name}, your loan has been approved.`;
+
+        const options = {
+            to: "",
+            message: message,
+            from: "" 
+        };
+
+        sms.send(options)
+            .then((response: any) => {
+                console.log('SMS sent successfully:', response);
+            })
+            .catch((error: any) => {
+                console.error('Error sending SMS:', error);
+            });
+
 
         res.json(updatedUser);
     } catch (error) {

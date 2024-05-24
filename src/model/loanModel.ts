@@ -6,6 +6,10 @@ const LoanSchema: Schema = new Schema({
         ref: 'Form',
         required: false
     },
+    name: {
+        type: String,
+        required: true
+    },
     loan_reference: { //auto generate
         type: Number,
         required: true,
@@ -31,26 +35,26 @@ const LoanSchema: Schema = new Schema({
         default: 0,
         desc: "The duration of the loan in months"
     },
-    loan_tenure: {
-        type: Number,
-        default: 0,
-        desc: "The tenure of the loan in months"
-    },
-    interest_rate: {
-        type: Number,
-        default: 0,
-        desc: "The interest rate of the loan"
-    },
-    interest_amount: {
-        type: Number,
-        default: 0,
-        desc: "The interest amount of the loan"
-    },
-    requirement_to_apply: {
-        type: [String],
-        default: [],
-        desc: "The requirement to apply for the loan"
-    }
+    // loan_tenure: {
+    //     type: Number,
+    //     default: 0,
+    //     desc: "The tenure of the loan in months"
+    // },
+    // interest_rate: {
+    //     type: Number,
+    //     default: 0,
+    //     desc: "The interest rate of the loan"
+    // },
+    // interest_amount: {
+    //     type: Number,
+    //     default: 0,
+    //     desc: "The interest amount of the loan"
+    // },
+    // requirement_to_apply: {
+    //     type: [String],
+    //     default: [],
+    //     desc: "The requirement to apply for the loan"
+    // }
 },
 
 {

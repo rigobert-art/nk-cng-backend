@@ -8,6 +8,8 @@ import http from "http";
 import SocketIO from 'socket.io';
 const cookieParser = require('cookie-parser');
 import bodyParser from 'body-parser';
+import fs from 'fs';
+import path from 'path';
 
 import userRoute from './route/userRoute';
 import superRoute from './route/superuserRoute'; 
@@ -20,7 +22,6 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;
-const fs = require("fs");
 
 // Middleware
 app.use(bodyParser.json());
@@ -94,6 +95,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
         },
     });
 });
+
+
 
 // Connect to MongoDB and start server
 mongoose.connect(process.env.MONGO_URI || "", {

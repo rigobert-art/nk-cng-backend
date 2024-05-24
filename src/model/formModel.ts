@@ -57,6 +57,11 @@ const FormSchema: Schema = new Schema({
         required: false,
         trim: true
     },
+    loan_type: {
+        type: String,
+        required: false,
+        trim: true
+    },
 
     created_at: {
         type: Date,

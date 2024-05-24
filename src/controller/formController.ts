@@ -3,7 +3,8 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Form from '../model/formModel';
 import User from '../model/userModel';
-import Image from "../model/ImageModel"
+import Image from "../model/ImageModel";
+import Loan from "../model/loanModel";
 
 export const createForm = async (req: Request, res: Response) => {
     try {
@@ -35,8 +36,7 @@ export const createForm = async (req: Request, res: Response) => {
         // }
 
         // Create new form
-        const newForm = new Form({
-            User: userId,
+        const newForm = new Form ({
             first_name: firstName,
             last_name: lastName,
             phone: phone,
@@ -46,6 +46,25 @@ export const createForm = async (req: Request, res: Response) => {
             zip: zip,
             email: email,
         });
+        // const updateForm = await Form.findOneAnUpdate({User: userId}, {
+        //     first_name: firstName,
+        //     last_name: lastName,
+        //     phone: phone,
+        //     national_id: nationalId,
+        //     address: address,
+        //     region: region,
+        //     zip: zip,
+        //     email: email,
+        // });
+
+        // create loan 
+        // const updateLoan = await Loan.findOneAndUpdate({updateForm._id}, {
+        //     name: `${updateForm.first_name} + ${updateForm.last_name}`,
+        //     total_loan_amount: 0,
+        //     initial_loan_amount: 800000,
+        //     loan_duration: 0
+
+        // })
 
         const user = User.findByIdAndUpdate( userId, { is_form_submitted: true } )
         if (!user) {
@@ -180,6 +199,39 @@ export const getUserImage = async (req: Request, res: Response) => {
         const images = await Image.find({ User: userId });
         res.status(200).json(images);
     } catch (error) {
+        console.error('Error getting images:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
+export const updateLoanType = async (req: Request, res: Response) => {
+    try{
+        const { userId, loanType } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (!loanType) {
+            return res.status(400).json({ message: 'Loan type is required' });
+        }
+
+        const newForm = new Form({
+            User: userId,
+        })
+        newForm.save()
+
+        const newLoan = new Loan({
+            Form: newForm._id,
+            loan_type: loanType,
+        })
+
+        newLoan.save()
+
+    }
+    catch(error){
         console.error('Error getting images:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
