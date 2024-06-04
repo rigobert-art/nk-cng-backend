@@ -1,5 +1,5 @@
 import express from 'express';
-import { upload, createGuarantor, getGuarantors, getGuarantorById, updateGuarantor, deleteGuarantor } from '../controllers/guarantorController';
+import { upload, createGuarantor, getGuarantors, getGuarantorById, updateGuarantor, deleteGuarantor } from '../controller/guarantorController';
 
 const router = express.Router();
 

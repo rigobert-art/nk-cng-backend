@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+export const upload = multer({ storage });
 
 export const createGuarantor = async (req: Request, res: Response) => {
     try {
@@ -87,7 +87,7 @@ export const updateGuarantor = async (req: Request, res: Response) => {
     }
 };
 
-const deleteGuarantor = async (req: Request, res: Response) => {
+export const deleteGuarantor = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
 

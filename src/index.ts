@@ -15,6 +15,8 @@ import userRoute from './route/userRoute';
 import superRoute from './route/superuserRoute'; 
 import loanRoute from './route/loanRoute';
 import formRoute from './route/formRoute';
+import guarantorRoute from './route/guarantorRoute';
+import vehicleRoute from './route/vehicleRoute';
 
 import Image from './model/ImageModel';
 
@@ -82,6 +84,8 @@ app.use('/api/v1/superuser', superRoute);
 app.use('/api/v1/loan', loanRoute);
 // app.use('/api/v1/sms', smsRoute);
 app.use('/api/v1/form', formRoute);
+app.use('/api/v1/form', guarantorRoute);
+app.use('/api/v1/vehicle', vehicleRoute)
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

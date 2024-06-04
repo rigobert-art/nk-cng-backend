@@ -9,8 +9,7 @@ import Loan from "../model/loanModel";
 
 import multer from 'multer';
 
-const user_upload = multer({ dest: 'user_id/' });
-const guarantor_upload = multer({ dest: ''})
+const uploadMiddleware = multer({ dest: 'user_id/' });
 
 export const createUserForm = async (req: Request, res: Response) => {
     try {
@@ -72,22 +71,11 @@ export const createUserForm = async (req: Request, res: Response) => {
 };
 
 // Apply multer middleware to handle file uploads
-export const upload_user_middleware = user_upload.fields([
+export const upload_user_middleware = uploadMiddleware.fields([
     { name: 'frontId', maxCount: 1 },
     { name: 'backId', maxCount: 1 },
 ]);
 
-
-export const upload_guarantor_middleware = user_upload.fields([
-    { name: 'frontId', maxCount: 1 },
-    { name: 'backId', maxCount: 1 },
-    { name: 'barua', maxCount: 1 }
-]);
-
-
-
-
-const 
 
 export const getForms = async (req: Request, res: Response) => {
     try {
