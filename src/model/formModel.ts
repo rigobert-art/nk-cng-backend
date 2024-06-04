@@ -1,11 +1,13 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 const FormSchema: Schema = new Schema({
-    User: {
+    user_id: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: false
     },
+
+    // personal data
     first_name: {
         type: String,
         required: false,
@@ -26,41 +28,56 @@ const FormSchema: Schema = new Schema({
         required: false,
         trim: true,
     },
-    // national_id: {
-    //     type: String,
-    //     require: false,
-    //     unique: true,
-    //     trim: true
-    // },
+    national_id: {
+        type: String,
+        require: false,
+        unique: true,
+        trim: true
+    },
     address: {
-        type: String,
-        required: false,
-        trim: true,
+        ward: {
+            type: String,
+            required: false,
+            trim: true,
+        },
+        city: {
+            type: String,
+            required: false,
+            trim: true,
+        },
+        postal_code: {
+            type: String,
+            required: false,
+            trim: true
+        },
     },
-    region: {
-        type: String,
-        required: false,
-        trim: true,
+    Guarantor_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'Guarantor',
+        required: false
     },
-    country: {
-        type: String,
-        required: false,
-        trim: true,
-    },
-    zip: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    passport: {
-        type: String,
-        required: false,
-        trim: true
+    vehicle_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'Vehicle',
+        required: false
     },
     loan_type: {
         type: String,
         required: false,
         trim: true
+    },
+    cylinderSize: {
+        type: String,
+        require: false,
+        
+    },
+    id_front_face: {
+        type: String,
+
+    },
+    id_back_face: {
+        type: String,
+
     },
 
     created_at: {

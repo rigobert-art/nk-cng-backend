@@ -6,7 +6,13 @@ import User from '../model/userModel';
 import Image from "../model/ImageModel";
 import Loan from "../model/loanModel";
 
-export const createForm = async (req: Request, res: Response) => {
+
+import multer from 'multer';
+
+const user_upload = multer({ dest: 'user_id/' });
+const guarantor_upload = multer({ dest: ''})
+
+export const createUserForm = async (req: Request, res: Response) => {
     try {
         const {
             userId,
@@ -14,14 +20,18 @@ export const createForm = async (req: Request, res: Response) => {
             lastName,
             phone,
             nationalId,
-            address,
-            region,
-            zip,
+            ward,
+            city,
+            postalCode,
             email,
+            loanType,
         } = req.body;
 
-        if( !firstName ||!lastName ||!phone ||!address ||!region ||!zip ||!email) {
-            return res.status(400).json({ message: 'Please fill all the fields' });
+        const { frontId, backId } = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+        // Validate required fields
+        if (!firstName || !lastName || !phone || !postalCode || !email) {
+            return res.status(400).json({ message: 'Please fill all the required fields' });
         }
 
         // Validate user ID
@@ -29,55 +39,55 @@ export const createForm = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Invalid user ID' });
         }
 
-        // Check if user exists
-        // const existingForm = await Form.findOne({ national_id: nationalId });
-        // if (existingForm) {
-        //     return res.status(400).json({ message: 'Form already exists' });
-        // }
-
-        // Create new form
-        const newForm = new Form ({
-            first_name: firstName,
-            last_name: lastName,
-            phone: phone,
-            national_id: nationalId,
-            address: address,
-            region: region,
-            zip: zip,
-            email: email,
-        });
-        // const updateForm = await Form.findOneAnUpdate({User: userId}, {
-        //     first_name: firstName,
-        //     last_name: lastName,
-        //     phone: phone,
-        //     national_id: nationalId,
-        //     address: address,
-        //     region: region,
-        //     zip: zip,
-        //     email: email,
-        // });
-
-        // create loan 
-        // const updateLoan = await Loan.findOneAndUpdate({updateForm._id}, {
-        //     name: `${updateForm.first_name} + ${updateForm.last_name}`,
-        //     total_loan_amount: 0,
-        //     initial_loan_amount: 800000,
-        //     loan_duration: 0
-
-        // })
-
-        const user = User.findByIdAndUpdate( userId, { is_form_submitted: true } )
-        if (!user) {
-            console.log('User not updated!!');
+        // Check if image files are uploaded
+        if (!frontId || !backId) {
+            return res.status(400).json({ message: 'Front and back ID images are required' });
         }
 
-        const savedForm = await newForm.save();
-        res.status(201).json(savedForm);
+        // Create new form
+        const newForm = new Form({
+            user_id: userId,
+            first_name: firstName,
+            last_name: lastName,
+            phone,
+            national_id: nationalId,
+            loanType: loanType,
+            address: {
+                ward,
+                city,
+                postal_code: postalCode,
+            },
+            email,
+            front_id_image_path: frontId[0].path, // assuming single file uploads
+            back_id_image_path: backId[0].path,   // assuming single file uploads
+        });
+
+        await newForm.save();
+
+        res.status(201).json({ status: 201, message: 'Form Submitted Successfully' });
     } catch (error) {
         console.error('Error creating form:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+// Apply multer middleware to handle file uploads
+export const upload_user_middleware = user_upload.fields([
+    { name: 'frontId', maxCount: 1 },
+    { name: 'backId', maxCount: 1 },
+]);
+
+
+export const upload_guarantor_middleware = user_upload.fields([
+    { name: 'frontId', maxCount: 1 },
+    { name: 'backId', maxCount: 1 },
+    { name: 'barua', maxCount: 1 }
+]);
+
+
+
+
+const 
 
 export const getForms = async (req: Request, res: Response) => {
     try {

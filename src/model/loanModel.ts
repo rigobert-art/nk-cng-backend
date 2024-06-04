@@ -12,7 +12,7 @@ const LoanSchema: Schema = new Schema({
     },
     loan_reference: { //auto generate
         type: Number,
-        required: true,
+        required: false,
         unique: true,
         desc: "The reference of the loan"
     },
@@ -25,36 +25,22 @@ const LoanSchema: Schema = new Schema({
         default: 0,
         dec: "The total loan the user is applying for"
     },
+    total_loan_balance: {
+        type: String,
+        required: false,
+        desc: "The total loan balance"
+    },
     initial_loan_amount: {
-        type: Number,
-        default: 0,
+        type: Boolean,
+        default: false,
         desc: "The initial amount the user is required to pay"
     },
-    loan_duration: {
-        type: Number,
-        default: 0,
+    loan_expire_date: {
+        type: Date,
+        default: new Date(),
         desc: "The duration of the loan in months"
     },
-    // loan_tenure: {
-    //     type: Number,
-    //     default: 0,
-    //     desc: "The tenure of the loan in months"
-    // },
-    // interest_rate: {
-    //     type: Number,
-    //     default: 0,
-    //     desc: "The interest rate of the loan"
-    // },
-    // interest_amount: {
-    //     type: Number,
-    //     default: 0,
-    //     desc: "The interest amount of the loan"
-    // },
-    // requirement_to_apply: {
-    //     type: [String],
-    //     default: [],
-    //     desc: "The requirement to apply for the loan"
-    // }
+
 },
 
 {

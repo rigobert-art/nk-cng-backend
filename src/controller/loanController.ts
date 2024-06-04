@@ -15,57 +15,8 @@ const at = africastalking({
 
 const sms = at.SMS;
 
-// Controller function to create a new loan
-export const updateLoan = async (req: Request, res: Response) => {
-    try {
-        const { loan_reference } = await loanModel.create(req.body);
-
-        let loan_type;
-        let initial_loan_amount;
-        let requirement_to_apply;
-
-        const existingRef = await loanModel.findOne({ loan_reference });
-
-        if (loan_reference == 2002) {
-            loan_type = 'Maendeleo Bank Loan';
-            initial_loan_amount = 0;
-            requirement_to_apply = [
-                "Original vehicle registration card",
-                "Copy of NIDA Identification Card",
-                "Identification letter from local government"
-            ]
-
-        }
-
-        if (loan_reference == 2003) {
-            loan_type = 'NK CNG Automotive Loan';
-            initial_loan_amount = 800000;
-            requirement_to_apply = [
-                "Original vehicle registration card",
-                "Copy of NIDA Identification Card",
-                "ID letter from local government",
-                "ID letter of Mdhamini from local government",
-                "ID letter of Mdhamini with permanent contract",
-                "Copy of NIDA of Mdhamini",
-            ]
-        }
-
-        const existingType = await loanModel.findOne({ loan_reference });
-        if (existingRef || existingType) {
-            return res.status(409).json({ status: 409, error: 'Loan already exists' });
-        }
-
-        const newLoan = new loanModel({ loan_reference, initial_loan_amount, requirement_to_apply });
-        await newLoan.save();
-
-        return res.status(201).json({ status: 200, message: "Create loan successfully" });
-    } catch (error) {
-        return res.status(500).json({ status: 500, error: 'Server error' });
-    }
-};
-
 // Controller function to get all loans
-export const getAllLoans = async (req: Request, res: Response) => {
+export const getLoanDetails = async (req: Request, res: Response) => {
     try {
         const loans = await loanModel.find();
         return res.status(200).json(loans);
@@ -91,7 +42,7 @@ export const approveLoan = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params;
 
-        const updatedUser = await personaModel.findByIdAndUpdate(
+        const updatedUser = await Form.findByIdAndUpdate(
             userId,
             {
                 is_approved: true,

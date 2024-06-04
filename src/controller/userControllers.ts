@@ -62,57 +62,6 @@ export const login = async (req: Request, res: Response) => {
     }
 };
 
-export const personalDetails = async (req: Request, res: Response) => {
-    try {
-        const { id, first_name, last_name, phone, address, city, country, postal_code } = req.body;
-
-        // Check if required fields are missing
-        const missingFields = [];
-        if (!first_name) missingFields.push('first_name');
-        if (!last_name) missingFields.push('last_name');
-        if (!phone) missingFields.push('phone');
-        if (!address) missingFields.push('address');
-        if (!city) missingFields.push('city');
-        if (!country) missingFields.push('country');
-        if (!postal_code) missingFields.push('postal_code');
-
-        if (missingFields.length > 0) {
-            return res.status(400).json({ message: `Missing required fields: ${missingFields.join(', ')}` });
-        }
-
-        // if (!validatePhone(phone)) {
-        //     return res.status(400).json({ message: 'Invalid phone number' });
-        // }
-
-        // if (!validatePostalCode(postal_code)) {
-        //     return res.status(400).json({ message: 'Invalid postal code' });
-        // }
-
-        const user = await userModel.findById(id);
-
-        if (!user) {
-            return res.status(401).json({ message: 'User does not exist' });
-        }
-
-
-        user.first_name = first_name;
-        user.last_name = last_name;
-        user.phone = phone;
-        user.address = address;
-        user.city = city;
-        user.country = country;
-        user.postal_code = postal_code;
-
-        // Save the updated user
-        await user.save();
-
-        res.status(200).json({ message: 'Personal details saved successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
 
 export const getUserById = async (req: Request, res: Response) => {
     try {
@@ -129,3 +78,14 @@ export const getUserById = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+export const getUsers = async (req: Request, res: Response) => {
+    try {
+        const users = await userModel.find()
+
+        res.status(200).json({ users })
+    }catch (error){
+        console.error(error)
+        res.status(500).json({ message: "Internal server error!"})
+    }
+}
