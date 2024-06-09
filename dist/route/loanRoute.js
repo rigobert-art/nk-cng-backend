@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const loanController_1 = require("../controller/loanController");
 const router = express_1.default.Router();
-router.post('/create', loanController_1.createLoan);
+// router.post('/create', createLoan);
 router.get('/get', loanController_1.getLoanById);
 router.get('/getAll', loanController_1.getAllLoans);
 // router.post('/set', setLoan);

@@ -73,11 +73,17 @@ const FormSchema: Schema = new Schema({
     },
     id_front_face: {
         type: String,
+        required: false
 
     },
     id_back_face: {
         type: String,
+        required: false
 
+    },
+    agreed_terms: {
+        type: Boolean,
+        default: false
     },
 
     created_at: {

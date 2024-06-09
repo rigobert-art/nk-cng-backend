@@ -3,13 +3,44 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import userModel from '../model/userModel';
 import { JWT_SECRET } from '../utils/jwtUtils';
+import AfricasTalking from 'africastalking';
+
+
+const africasTalking = AfricasTalking({
+    apiKey: "8ee049d80e558be1680fddf90fd4683e016d9ef98be04fbbc6e2e6f41f869cee",
+    username: "MIKE001"
+});
+
+const sms = africasTalking.SMS;
+
+// Utility function to generate OTP
+const generateOTP = () => {
+    return Math.floor(10000 + Math.random() * 90000).toString();
+};
+
+const sendOTP = async ( phone: string, otp: string) => {
+    const message = `Your verification code is ${otp}`;
+    try {
+        const response = await sms.send({
+            to: phone,
+            message: message,
+            from: ''
+        });
+        console.log(response);
+    } catch (error) {
+        console.error('Error sending OTP:', error);
+    throw error;
+    }
+};
 
 export const register = async (req: Request, res: Response) => {
+    const otp = generateOTP();
+    const otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // OTP expires in 15 minutes
     try {
-        const { email, password, phone } = req.body;
+        const { name, password, phone } = req.body;
 
         // Check if the user already exists
-        const existingUser = await userModel.findOne({ email });
+        const existingUser = await userModel.findOne({ name });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
@@ -21,8 +52,9 @@ export const register = async (req: Request, res: Response) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = new userModel({ email, password: hashedPassword, phone });
+        const newUser = new userModel({ name, password: hashedPassword, phone, otp, otpExpiresAt });
         await newUser.save();
+        await sendOTP(phone, otp);
 
         res.status(201).json({ status: 200, message: 'User registered successfully' });
     } catch (error) {
@@ -31,12 +63,71 @@ export const register = async (req: Request, res: Response) => {
     }
 };
 
+export const verify = async (req: Request, res: Response) => {
+    const { phone, otp } = req.body;
+
+    try {
+        const user = await userModel.findOne({ phone, otp });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid OTP' });
+        }
+
+        if (user.otpExpiresAt && user.otpExpiresAt < new Date()) {
+            return res.status(400).json({ message: 'OTP expired' });
+        }
+
+        user.account_verified = true;
+        user.otp = undefined;
+        user.otpExpiresAt = undefined;
+        await user.save();
+
+        res.status(200).json({ message: 'User verified successfully' });
+    } catch (error) {
+        console.error('Error verifying user:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const resendOtp = async (req: Request, res: Response) => {
+    const { phone } = req.body;
+
+    if (!phone) {
+        return res.status(400).json({ status: 'error', message: 'Phone number is required' });
+    }
+
+    try {
+        const user = await userModel.findOne({ phone });
+
+        if (!user) {
+            return res.status(404).json({ status: 'error', message: 'User not found' });
+        }
+
+        const otp = generateOTP();
+        user.otp = otp;
+        user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);  // OTP expires in 10 minutes
+        await user.save();
+
+        // Send OTP via SMS
+        const result = await sms.send({
+            to: [phone],
+            message: `Your OTP code is ${otp}`,
+            from: ''
+        });
+
+        res.status(200).json({ status: 'success', message: 'OTP resent successfully', result });
+    } catch (error) {
+        console.error('Error resending OTP:', error);
+        res.status(500).json({ status: 'error', message: 'Internal server error' });
+    }
+};
+
 export const login = async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
+        const { phone, password } = req.body;
 
         // Find the user by email and select the password field
-        const user = await userModel.findOne({ email }).select('+password');
+        const user = await userModel.findOne({ phone }).select('+password');
 
         // If no user is found, return an error
         if (!user) {

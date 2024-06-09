@@ -12,51 +12,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateLoanTypeAndInitialAmount = exports.deleteLoanById = exports.updateLoanById = exports.approveLoan = exports.getLoanById = exports.getAllLoans = exports.createLoan = void 0;
+exports.updateLoanTypeAndInitialAmount = exports.deleteLoanById = exports.updateLoanById = exports.approveLoan = exports.getLoanById = exports.getAllLoans = void 0;
 const loanModel_1 = __importDefault(require("../model/loanModel")); // Import your Loan model
 const formModel_1 = __importDefault(require("../model/formModel"));
-// Controller function to create a new loan
-const createLoan = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { loan_reference } = yield loanModel_1.default.create(req.body);
-        let loan_type;
-        let initial_loan_amount;
-        let requirement_to_apply;
-        const existingRef = yield loanModel_1.default.findOne({ loan_reference });
-        if (loan_reference == 2002) {
-            loan_type = 'Maendeleo Bank Loan';
-            initial_loan_amount = 0;
-            requirement_to_apply = [
-                "Original vehicle registration card",
-                "Copy of NIDA Identification Card",
-                "Identification letter from local government"
-            ];
-        }
-        if (loan_reference == 2003) {
-            loan_type = 'NK CNG Automotive Loan';
-            initial_loan_amount = 800000;
-            requirement_to_apply = [
-                "Original vehicle registration card",
-                "Copy of NIDA Identification Card",
-                "ID letter from local government",
-                "ID letter of Mdhamini from local government",
-                "ID letter of Mdhamini with permanent contract",
-                "Copy of NIDA of Mdhamini",
-            ];
-        }
-        const existingType = yield loanModel_1.default.findOne({ loan_reference });
-        if (existingRef || existingType) {
-            return res.status(409).json({ status: 409, error: 'Loan already exists' });
-        }
-        const newLoan = new loanModel_1.default({ loan_reference, initial_loan_amount, requirement_to_apply });
-        yield newLoan.save();
-        return res.status(201).json({ status: 200, message: "Create loan successfully" });
-    }
-    catch (error) {
-        return res.status(500).json({ status: 500, error: 'Server error' });
-    }
+const africastalking_1 = __importDefault(require("africastalking"));
+const formModel_2 = __importDefault(require("../model/formModel"));
+// Initialize Africa's Talking with your API key and username
+const at = (0, africastalking_1.default)({
+    apiKey: 'YOUR_API_KEY',
+    username: 'YOUR_USERNAME'
 });
-exports.createLoan = createLoan;
+const sms = at.SMS;
 // Controller function to get all loans
 const getAllLoans = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -92,6 +58,20 @@ const approveLoan = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (!updatedUser) {
             return res.status(404).json({ message: 'User not found' });
         }
+        const phoneNumber = updatedUser.phone; // Assuming the user model has a phoneNumber field
+        const message = `Dear ${updatedUser.first_name} ${updatedUser.last_name}, your loan has been approved.`;
+        const options = {
+            to: "",
+            message: message,
+            from: ""
+        };
+        sms.send(options)
+            .then((response) => {
+            console.log('SMS sent successfully:', response);
+        })
+            .catch((error) => {
+            console.error('Error sending SMS:', error);
+        });
         res.json(updatedUser);
     }
     catch (error) {
@@ -131,7 +111,7 @@ exports.deleteLoanById = deleteLoanById;
 const updateLoanTypeAndInitialAmount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId, initial_amount } = req.body;
-        const updatedUser = yield formModel_1.default.findByIdAndUpdate(userId, {
+        const updatedUser = yield formModel_2.default.findByIdAndUpdate(userId, {
             is_loan_type: true,
             is_initial_paid: true,
             initial_amount

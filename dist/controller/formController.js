@@ -12,51 +12,60 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserImage = exports.uploadPicture = exports.deleteForm = exports.updateForm = exports.getFormById = exports.getForms = exports.createForm = void 0;
+exports.updateLoanType = exports.deleteForm = exports.updateForm = exports.getFormById = exports.getForms = exports.upload_user_middleware = exports.createUserForm = exports.uploadMiddleware = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const formModel_1 = __importDefault(require("../model/formModel"));
 const userModel_1 = __importDefault(require("../model/userModel"));
-const ImageModel_1 = __importDefault(require("../model/ImageModel"));
-const createForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const loanModel_1 = __importDefault(require("../model/loanModel"));
+const multer_1 = __importDefault(require("multer"));
+exports.uploadMiddleware = (0, multer_1.default)({ dest: 'user_id/' });
+const createUserForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId, firstName, lastName, phone, nationalId, address, region, zip, email, } = req.body;
-        if (!firstName || !lastName || !phone || !address || !region || !zip || !email) {
-            return res.status(400).json({ message: 'Please fill all the fields' });
+        const { userId, firstName, lastName, phone, nationalId, ward, city, postalCode, email, loanType, } = req.body;
+        const { frontId, backId } = req.files;
+        // Validate required fields
+        if (!firstName || !lastName || !phone || !postalCode || !email) {
+            return res.status(400).json({ message: 'Please fill all the required fields' });
         }
         // Validate user ID
         if (!mongoose_1.default.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ message: 'Invalid user ID' });
         }
-        // Check if user exists
-        // const existingForm = await Form.findOne({ national_id: nationalId });
-        // if (existingForm) {
-        //     return res.status(400).json({ message: 'Form already exists' });
-        // }
+        // Check if image files are uploaded
+        if (!frontId || !backId) {
+            return res.status(400).json({ message: 'Front and back ID images are required' });
+        }
         // Create new form
         const newForm = new formModel_1.default({
-            User: userId,
+            user_id: userId,
             first_name: firstName,
             last_name: lastName,
-            phone: phone,
+            phone,
             national_id: nationalId,
-            address: address,
-            region: region,
-            zip: zip,
-            email: email,
+            loanType: loanType,
+            address: {
+                ward,
+                city,
+                postal_code: postalCode,
+            },
+            email,
+            front_id_image_path: frontId[0].path,
+            back_id_image_path: backId[0].path, // assuming single file uploads
         });
-        const user = userModel_1.default.findByIdAndUpdate(userId, { is_form_submitted: true });
-        if (!user) {
-            console.log('User not updated!!');
-        }
-        const savedForm = yield newForm.save();
-        res.status(201).json(savedForm);
+        yield newForm.save();
+        res.status(201).json({ status: 201, message: 'Form Submitted Successfully' });
     }
     catch (error) {
         console.error('Error creating form:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-exports.createForm = createForm;
+exports.createUserForm = createUserForm;
+// Apply multer middleware to handle file uploads
+exports.upload_user_middleware = exports.uploadMiddleware.fields([
+    { name: 'frontId', maxCount: 1 },
+    { name: 'backId', maxCount: 1 },
+]);
 const getForms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const forms = yield formModel_1.default.find().sort({ createdAt: -1 });
@@ -126,43 +135,29 @@ const deleteForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.deleteForm = deleteForm;
-const uploadPicture = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateLoanType = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { formId, imageType } = req.body;
-        if (!formId || !imageType) {
-            return res.status(400).send('User ID and image type are required.');
+        const { userId, loanType } = req.body;
+        const user = yield userModel_1.default.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
-        if (!mongoose_1.default.Types.ObjectId.isValid(formId)) {
-            return res.status(400).json({ message: 'Invalid form ID' });
+        if (!loanType) {
+            return res.status(400).json({ message: 'Loan type is required' });
         }
-        if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' });
-        }
-        const newImage = new ImageModel_1.default({
-            Form: formId,
-            imageType,
-            filename: req.file.originalname,
-            contentType: req.file.mimetype,
-            data: req.file.buffer
+        const newForm = new formModel_1.default({
+            User: userId,
         });
-        yield newImage.save();
-        res.status(201).send('Image uploaded successfully.');
-    }
-    catch (error) {
-        console.error('Error uploading image:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-exports.uploadPicture = uploadPicture;
-const getUserImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { userId } = req.body;
-        const images = yield ImageModel_1.default.find({ User: userId });
-        res.status(200).json(images);
+        newForm.save();
+        const newLoan = new loanModel_1.default({
+            Form: newForm._id,
+            loan_type: loanType,
+        });
+        newLoan.save();
     }
     catch (error) {
         console.error('Error getting images:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-exports.getUserImage = getUserImage;
+exports.updateLoanType = updateLoanType;

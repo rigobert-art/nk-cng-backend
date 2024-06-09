@@ -5,6 +5,7 @@ const UserSchema: Schema = new Schema({
     email: {
         type: String,
         unique: true,
+        required: false,
         lowercase: true, 
         trim: true, 
     },
@@ -19,7 +20,7 @@ const UserSchema: Schema = new Schema({
         trim: true, 
         unique: true, 
     },
-    username: {
+    name: {
         type: String,
         required: false,
         trim: true
@@ -36,10 +37,19 @@ const UserSchema: Schema = new Schema({
         type: Boolean,
         default: true
     } ,
+    otp: {
+        type: String,
+        required: false,
+    },
+    otpExpiresAt: {
+        type: Date,
+        required: false,
+    },
     account_verified: {
         type: Boolean,
         default: false,
     },
+    
     deleted_account: {
         type: Boolean,
         default: false,

@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import guarantorModel from '../model/guarantorModel';
-import multer from 'multer';
+import multer, { StorageEngine } from 'multer';
 
-const storage = multer.diskStorage({
+// Configure multer storage
+const storage: StorageEngine = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
     },
@@ -12,14 +13,24 @@ const storage = multer.diskStorage({
     }
 });
 
+// Multer middleware
 export const upload = multer({ storage });
 
+// Create a new guarantor
 export const createGuarantor = async (req: Request, res: Response) => {
     try {
         const { firstName, lastName, email, phone } = req.body;
-        const nationalIdFront = req.files['nationalIdFront'][0];
-        const nationalIdBack = req.files['nationalIdBack'][0];
-        const letterFile = req.files['letterFile'][0];
+        const files = req.files as {
+            [fieldname: string]: Express.Multer.File[];
+        };
+
+        if (!files || !files['nationalIdFront'] || !files['nationalIdBack'] || !files['letterFile']) {
+            return res.status(400).json({ message: 'Missing required files' });
+        }
+
+        const nationalIdFront = files['nationalIdFront'][0];
+        const nationalIdBack = files['nationalIdBack'][0];
+        const letterFile = files['letterFile'][0];
 
         const guarantor = new guarantorModel({
             firstName,
@@ -39,6 +50,7 @@ export const createGuarantor = async (req: Request, res: Response) => {
     }
 };
 
+// Get all guarantors
 export const getGuarantors = async (req: Request, res: Response) => {
     try {
         const guarantors = await guarantorModel.find();
@@ -49,6 +61,7 @@ export const getGuarantors = async (req: Request, res: Response) => {
     }
 };
 
+// Get a guarantor by ID
 export const getGuarantorById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -61,11 +74,12 @@ export const getGuarantorById = async (req: Request, res: Response) => {
         }
         res.status(200).json(guarantor);
     } catch (error) {
-        console.error('Error fetching guarantors:', error);
+        console.error('Error fetching guarantor:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }
 
+// Update a guarantor
 export const updateGuarantor = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -87,6 +101,7 @@ export const updateGuarantor = async (req: Request, res: Response) => {
     }
 };
 
+// Delete a guarantor
 export const deleteGuarantor = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;

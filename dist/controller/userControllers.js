@@ -23,16 +23,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserById = exports.personalDetails = exports.login = exports.register = void 0;
+exports.getUsers = exports.getUserById = exports.login = exports.resendOtp = exports.verify = exports.register = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const userModel_1 = __importDefault(require("../model/userModel"));
 const jwtUtils_1 = require("../utils/jwtUtils");
-const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const africastalking_1 = __importDefault(require("africastalking"));
+const africasTalking = (0, africastalking_1.default)({
+    apiKey: "8ee049d80e558be1680fddf90fd4683e016d9ef98be04fbbc6e2e6f41f869cee",
+    username: "MIKE001"
+});
+const sms = africasTalking.SMS;
+// Utility function to generate OTP
+const generateOTP = () => {
+    return Math.floor(10000 + Math.random() * 90000).toString();
+};
+const sendOTP = (phone, otp) => __awaiter(void 0, void 0, void 0, function* () {
+    const message = `Your verification code is ${otp}`;
     try {
-        const { email, password, phone } = req.body;
+        const response = yield sms.send({
+            to: phone,
+            message: message,
+            from: ''
+        });
+        console.log(response);
+    }
+    catch (error) {
+        console.error('Error sending OTP:', error);
+        throw error;
+    }
+});
+const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const otp = generateOTP();
+    const otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // OTP expires in 15 minutes
+    try {
+        const { name, password, phone } = req.body;
         // Check if the user already exists
-        const existingUser = yield userModel_1.default.findOne({ email });
+        const existingUser = yield userModel_1.default.findOne({ name });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
@@ -41,8 +68,9 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return res.status(401).json({ message: "Phone Number already taken" });
         }
         const hashedPassword = yield bcrypt_1.default.hash(password, 10);
-        const newUser = new userModel_1.default({ email, password: hashedPassword, phone });
+        const newUser = new userModel_1.default({ name, password: hashedPassword, phone, otp, otpExpiresAt });
         yield newUser.save();
+        yield sendOTP(phone, otp);
         res.status(201).json({ status: 200, message: 'User registered successfully' });
     }
     catch (error) {
@@ -51,11 +79,61 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.register = register;
+const verify = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { phone, otp } = req.body;
+    try {
+        const user = yield userModel_1.default.findOne({ phone, otp });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid OTP' });
+        }
+        if (user.otpExpiresAt && user.otpExpiresAt < new Date()) {
+            return res.status(400).json({ message: 'OTP expired' });
+        }
+        user.account_verified = true;
+        user.otp = undefined;
+        user.otpExpiresAt = undefined;
+        yield user.save();
+        res.status(200).json({ message: 'User verified successfully' });
+    }
+    catch (error) {
+        console.error('Error verifying user:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+exports.verify = verify;
+const resendOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { phone } = req.body;
+    if (!phone) {
+        return res.status(400).json({ status: 'error', message: 'Phone number is required' });
+    }
+    try {
+        const user = yield userModel_1.default.findOne({ phone });
+        if (!user) {
+            return res.status(404).json({ status: 'error', message: 'User not found' });
+        }
+        const otp = generateOTP();
+        user.otp = otp;
+        user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+        yield user.save();
+        // Send OTP via SMS
+        const result = yield sms.send({
+            to: [phone],
+            message: `Your OTP code is ${otp}`,
+            from: ''
+        });
+        res.status(200).json({ status: 'success', message: 'OTP resent successfully', result });
+    }
+    catch (error) {
+        console.error('Error resending OTP:', error);
+        res.status(500).json({ status: 'error', message: 'Internal server error' });
+    }
+});
+exports.resendOtp = resendOtp;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email, password } = req.body;
+        const { phone, password } = req.body;
         // Find the user by email and select the password field
-        const user = yield userModel_1.default.findOne({ email }).select('+password');
+        const user = yield userModel_1.default.findOne({ phone }).select('+password');
         // If no user is found, return an error
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
@@ -74,55 +152,6 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.login = login;
-const personalDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { id, first_name, last_name, phone, address, city, country, postal_code } = req.body;
-        // Check if required fields are missing
-        const missingFields = [];
-        if (!first_name)
-            missingFields.push('first_name');
-        if (!last_name)
-            missingFields.push('last_name');
-        if (!phone)
-            missingFields.push('phone');
-        if (!address)
-            missingFields.push('address');
-        if (!city)
-            missingFields.push('city');
-        if (!country)
-            missingFields.push('country');
-        if (!postal_code)
-            missingFields.push('postal_code');
-        if (missingFields.length > 0) {
-            return res.status(400).json({ message: `Missing required fields: ${missingFields.join(', ')}` });
-        }
-        // if (!validatePhone(phone)) {
-        //     return res.status(400).json({ message: 'Invalid phone number' });
-        // }
-        // if (!validatePostalCode(postal_code)) {
-        //     return res.status(400).json({ message: 'Invalid postal code' });
-        // }
-        const user = yield userModel_1.default.findById(id);
-        if (!user) {
-            return res.status(401).json({ message: 'User does not exist' });
-        }
-        user.first_name = first_name;
-        user.last_name = last_name;
-        user.phone = phone;
-        user.address = address;
-        user.city = city;
-        user.country = country;
-        user.postal_code = postal_code;
-        // Save the updated user
-        yield user.save();
-        res.status(200).json({ message: 'Personal details saved successfully' });
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-exports.personalDetails = personalDetails;
 const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.params.userId;
@@ -138,3 +167,14 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getUserById = getUserById;
+const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield userModel_1.default.find();
+        res.status(200).json({ users });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error!" });
+    }
+});
+exports.getUsers = getUsers;

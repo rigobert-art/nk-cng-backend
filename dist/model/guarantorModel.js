@@ -24,61 +24,52 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const UserSchema = new mongoose_1.Schema({
-    // auth staff
-    email: {
+const GuarantorSchema = new mongoose_1.Schema({
+    User: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false
+    },
+    // personal data
+    first_name: {
         type: String,
-        unique: true,
         required: false,
-        lowercase: true,
         trim: true,
     },
-    password: {
+    last_name: {
         type: String,
-        required: true,
-        minlength: 8,
+        required: false,
+        trim: true,
     },
     phone: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
-        unique: true,
     },
-    name: {
+    email: {
         type: String,
         required: false,
-        trim: true
+        trim: true,
     },
-    status: {
+    barua: {
         type: String,
-        default: "InActive",
+        require: false
     },
-    is_form_submitted: {
-        type: Boolean,
-        default: false
-    },
-    send_sms_notifications: {
-        type: Boolean,
-        default: true
-    },
-    otp: {
+    id_front_face: {
         type: String,
-        required: false,
+        required: false
     },
-    otpExpiresAt: {
+    id_back_face: {
+        type: String,
+        require: false,
+    },
+    created_at: {
         type: Date,
-        required: false,
+        default: Date.now
     },
-    account_verified: {
-        type: Boolean,
-        default: false,
-    },
-    deleted_account: {
-        type: Boolean,
-        default: false,
+    updated_at: {
+        type: Date,
+        default: Date.now
     }
-}, {
-    timestamps: true,
-    versionKey: false
 });
-exports.default = mongoose_1.default.model('User', UserSchema);
+exports.default = mongoose_1.default.model('Guarantor', GuarantorSchema);

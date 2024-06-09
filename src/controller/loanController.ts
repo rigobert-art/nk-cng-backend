@@ -6,6 +6,7 @@ import Form from '../model/formModel';
 import Loan from '../model/loanModel'
 
 import africastalking from 'africastalking';
+import formModel from '../model/formModel';
 
 // Initialize Africa's Talking with your API key and username
 const at = africastalking({
@@ -16,7 +17,7 @@ const at = africastalking({
 const sms = at.SMS;
 
 // Controller function to get all loans
-export const getLoanDetails = async (req: Request, res: Response) => {
+export const getAllLoans = async (req: Request, res: Response) => {
     try {
         const loans = await loanModel.find();
         return res.status(200).json(loans);
@@ -110,7 +111,7 @@ export const updateLoanTypeAndInitialAmount = async (req: Request, res: Response
     try {
         const { userId, initial_amount } = req.body;
 
-        const updatedUser = await personaModel.findByIdAndUpdate(
+        const updatedUser = await formModel.findByIdAndUpdate(
             userId,
             {
                 is_loan_type: true,
