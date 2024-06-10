@@ -29,6 +29,10 @@ const UserSchema: Schema = new Schema({
         type: String,
         default: "InActive",
     },
+    profile_picture: {
+        type: String,
+         required: false,
+    },
     is_form_submitted: {
         type: Boolean,
         default: false

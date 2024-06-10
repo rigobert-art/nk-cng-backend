@@ -180,3 +180,24 @@ export const getUsers = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal server error!"})
     }
 }
+
+export const handleProfileImageUpload  = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.userId;
+        const imageUrl = req.body.imageUrl;
+
+        // check if user exist 
+        const user = userModel.findById(userId);
+        if(!user){
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // save image to the database
+        // user.profile_picture = imageUrl;
+        // await user.save();
+
+    } catch (error) {
+         console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}

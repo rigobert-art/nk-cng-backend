@@ -5,7 +5,6 @@ import Form from '../model/formModel';
 import User from '../model/userModel';
 import Loan from "../model/loanModel";
 
-
 import multer from 'multer';
 
 export const uploadMiddleware = multer({ dest: 'user_id/' });
@@ -26,24 +25,12 @@ export const personalForm = async (req: Request, res: Response) => {
             loanType,
         } = req.body;
 
-        // const { frontId, backId } = req.files as { [fieldname: string]: Express.Multer.File[] };
-
-        // Validate required fields
-        if (!firstName || !lastName || !phone || !postalCode || !email) {
-            return res.status(400).json({ message: 'Please fill all the required fields' });
-        }
-
         const form = await Form.findById(formId)
         if (!form) {
             res.status(200).json({ message: "Form was not found! " })
         }
 
-        // // Check if image files are uploaded 
-        // if (!frontId || !backId) {
-        //     return res.status(400).json({ message: 'Front and back ID images are required' });
-        // }
-
-        await Form.findOneAndUpdate({
+        const updatedForm = await Form.findOneAndUpdate({
             first_name: firstName,
             last_name: lastName,
             phone,
@@ -55,12 +42,13 @@ export const personalForm = async (req: Request, res: Response) => {
                 city,
                 postal_code: postalCode,
             },
-            email
+            email,
+            status: "submitted"
         }, { _id: formId })
+        console.log(updatedForm)
 
 
-
-        res.status(201).json({ status: "Ok", message: 'Form Submitted Successfully' });
+        res.status(201).json(updateForm);
     } catch (error) {
         console.error('Error creating form:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -224,7 +212,11 @@ export const acceptLoanTerms = async (req: Request, res: Response) => {
 
     try {
 
-        // create form
+        // check if user has a form id
+        const checkForm = await Form.findOne({ User: userId });
+        if (checkForm) {
+            return res.status(202).json({ status: "Ok", message: 'User has form' });
+        }
 
         const newForm = new Form({
             agreed_terms: accepted,

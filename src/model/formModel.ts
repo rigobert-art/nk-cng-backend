@@ -71,6 +71,15 @@ const FormSchema: Schema = new Schema({
         require: false,
         
     },
+    status: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    validated: {
+        type: Boolean,
+         default: false
+    },
     id_front_face: {
         type: String,
         required: false
