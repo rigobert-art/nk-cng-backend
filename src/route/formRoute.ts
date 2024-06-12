@@ -1,5 +1,5 @@
 import express from 'express';
-import { personalForm, getForms, getFormById, acceptLoanTerms, handleImageUpload } from '../controller/formController';
+import { personalForm, getForm, getForms, acceptLoanTerms, handleImageUpload, handleFormDelete, handleMultipleDelete } from '../controller/formController';
 import { uploadMiddleware } from '../middlewares/storage'
 
 const router = express.Router();
@@ -11,8 +11,11 @@ router.post('/personal/upload',
         { name: 'backId', maxCount: 1 },
 ]), handleImageUpload)
 router.get('/getAll', getForms);
-router.get('/getById/:id', getFormById);
-router.post("/accept-terms", acceptLoanTerms)
+router.get('/getById/:id', getForm);
+router.delete('/delete/:id', handleFormDelete);
+// handle multiple delete
+router.post('/delete-multiple', handleMultipleDelete);
+router.post("/accept-terms", acceptLoanTerms);
 // router.get('/user/:userId', getUserImage);
 
 

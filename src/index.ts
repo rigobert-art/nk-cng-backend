@@ -15,6 +15,7 @@ import loanRoute from './route/loanRoute';
 import formRoute from './route/formRoute';
 import guarantorRoute from './route/guarantorRoute';
 import vehicleRoute from './route/vehicleRoute';
+import Form from './model/formModel';
 
 dotenv.config();
 
@@ -37,12 +38,6 @@ const io = new SocketIO.Server(server, {
 });
 app.set("io", io);
 
-// Healthcheck endpoint
-app.get('/', (req, res) => {
-  res.status(200).send({ status: 'ok' });
-});
-
-
 //routes 
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/superuser', superRoute);
@@ -50,7 +45,8 @@ app.use('/api/v1/loan', loanRoute);
 // app.use('/api/v1/sms', smsRoute);
 app.use('/api/v1/form', formRoute);
 app.use('/api/v1/guarantor', guarantorRoute);
-app.use('/api/v1/vehicle', vehicleRoute)
+app.use('/api/v1/vehicle', vehicleRoute);
+
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -66,7 +62,6 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 
-
 // Connect to MongoDB and start server
 mongoose.connect(process.env.MONGO_URI || "", {
     family: 4,
@@ -80,4 +75,4 @@ mongoose.connect(process.env.MONGO_URI || "", {
     })
     .catch((error: any) => {
         console.error('Error connecting to MongoDB:', error);
-    });
+});

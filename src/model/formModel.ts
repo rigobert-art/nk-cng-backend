@@ -1,12 +1,11 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 const FormSchema: Schema = new Schema({
-    user_id: {
+    User: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: false
     },
-
     // personal data
     first_name: {
         type: String,
@@ -31,7 +30,6 @@ const FormSchema: Schema = new Schema({
     national_id: {
         type: String,
         require: false,
-        unique: true,
         trim: true
     },
     address: {
