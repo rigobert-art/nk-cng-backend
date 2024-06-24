@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUsers = exports.getUserById = exports.login = exports.resendOtp = exports.verify = exports.register = void 0;
+exports.handleProfileImageUpload = exports.getUsers = exports.getUserById = exports.login = exports.resendOtp = exports.verify = exports.register = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const userModel_1 = __importDefault(require("../model/userModel"));
@@ -178,3 +178,22 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getUsers = getUsers;
+const handleProfileImageUpload = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.params.userId;
+        const imageUrl = req.body.imageUrl;
+        // check if user exist 
+        const user = userModel_1.default.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        // save image to the database
+        // user.profile_picture = imageUrl;
+        // await user.save();
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+exports.handleProfileImageUpload = handleProfileImageUpload;
