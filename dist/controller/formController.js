@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -19,10 +10,10 @@ const userModel_1 = __importDefault(require("../model/userModel"));
 const loanModel_1 = __importDefault(require("../model/loanModel"));
 const multer_1 = __importDefault(require("multer"));
 exports.uploadMiddleware = (0, multer_1.default)({ dest: 'user_id/' });
-const personalForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const personalForm = async (req, res) => {
     try {
         const { formId, firstName, lastName, phone, nationalId, ward, city, postalCode, cylinderSize, email, loanType, } = req.body;
-        const form = yield formModel_1.default.findById(formId);
+        const form = await formModel_1.default.findById(formId);
         if (!form) {
             return res.status(404).json({ message: "Form was not found!" });
         }
@@ -41,19 +32,19 @@ const personalForm = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         form.loanType = loanType;
         form.status = "submitted";
         // Save the updated form
-        yield form.save();
+        await form.save();
         res.status(201).json(form);
     }
     catch (error) {
         console.error('Error updating form:', error);
         res.status(500).json({ status: "Ok", message: 'Internal server error' });
     }
-});
+};
 exports.personalForm = personalForm;
-const handleImageUpload = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const handleImageUpload = async (req, res) => {
     try {
         const { formId } = req.body;
-        const form = yield formModel_1.default.findById(formId);
+        const form = await formModel_1.default.findById(formId);
         if (!form) {
             return res.status(404).json({ message: "Form not found!" });
         }
@@ -65,20 +56,20 @@ const handleImageUpload = (req, res) => __awaiter(void 0, void 0, void 0, functi
         // Update the form with image paths
         form.front_id_image = files.frontId[0].path;
         form.back_id_image = files.backId[0].path;
-        yield form.save();
+        await form.save();
         res.status(200).json({ status: "Ok", message: 'Images Uploaded Successfully' });
     }
     catch (error) {
         console.error('Error uploading images:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.handleImageUpload = handleImageUpload;
 // Retrieve form details including image paths
-const getForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getForm = async (req, res) => {
     try {
         const { formId } = req.params;
-        const form = yield formModel_1.default.findById(formId);
+        const form = await formModel_1.default.findById(formId);
         if (!form) {
             return res.status(404).json({ message: "Form not found!" });
         }
@@ -93,25 +84,25 @@ const getForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         console.error('Error retrieving form:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.getForm = getForm;
 // Apply multer middleware to handle file uploads
 exports.upload_user_middleware = exports.uploadMiddleware.fields([
     { name: 'frontId', maxCount: 1 },
     { name: 'backId', maxCount: 1 },
 ]);
-const getForms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getForms = async (req, res) => {
     try {
-        const forms = yield formModel_1.default.find().sort({ createdAt: -1 });
+        const forms = await formModel_1.default.find().sort({ createdAt: -1 });
         res.status(200).json(forms);
     }
     catch (error) {
         console.error('Error retrieving forms:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.getForms = getForms;
-const updateForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateForm = async (req, res) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
@@ -119,7 +110,7 @@ const updateForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: 'Invalid form ID' });
         }
-        const updatedForm = yield formModel_1.default.findByIdAndUpdate(id, updateData, { new: true }).populate('user').populate('passport');
+        const updatedForm = await formModel_1.default.findByIdAndUpdate(id, updateData, { new: true }).populate('user').populate('passport');
         if (!updatedForm) {
             return res.status(404).json({ message: 'Form not found' });
         }
@@ -129,12 +120,12 @@ const updateForm = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         console.error('Error updating form:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.updateForm = updateForm;
-const handleFormDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const handleFormDelete = async (req, res) => {
     try {
         const formId = req.params.id;
-        const deletedForm = yield formModel_1.default.findByIdAndDelete(formId);
+        const deletedForm = await formModel_1.default.findByIdAndDelete(formId);
         if (!deletedForm) {
             return res.status(404).json({ error: 'Form not found' });
         }
@@ -145,10 +136,10 @@ const handleFormDelete = (req, res) => __awaiter(void 0, void 0, void 0, functio
         console.error('Error deleting form:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
-});
+};
 exports.handleFormDelete = handleFormDelete;
 // handle multiple delete
-const handleMultipleDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const handleMultipleDelete = async (req, res) => {
     try {
         const formIds = req.body.formIds;
         if (!formIds || !Array.isArray(formIds) || formIds.length === 0) {
@@ -158,7 +149,7 @@ const handleMultipleDelete = (req, res) => __awaiter(void 0, void 0, void 0, fun
         if (validObjectIds.length === 0) {
             return res.status(400).json({ error: 'No valid formIds provided' });
         }
-        const deletedForms = yield formModel_1.default.deleteMany({ _id: { $in: validObjectIds } });
+        const deletedForms = await formModel_1.default.deleteMany({ _id: { $in: validObjectIds } });
         if (deletedForms.deletedCount === 0) {
             return res.status(404).json({ error: 'No forms found for deletion' });
         }
@@ -168,12 +159,12 @@ const handleMultipleDelete = (req, res) => __awaiter(void 0, void 0, void 0, fun
         console.error('Error deleting forms:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
-});
+};
 exports.handleMultipleDelete = handleMultipleDelete;
-const updateLoanType = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateLoanType = async (req, res) => {
     try {
         const { userId, loanType } = req.body;
-        const user = yield userModel_1.default.findById(userId);
+        const user = await userModel_1.default.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -194,9 +185,9 @@ const updateLoanType = (req, res) => __awaiter(void 0, void 0, void 0, function*
         console.error('Error getting images:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.updateLoanType = updateLoanType;
-const acceptLoanTerms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const acceptLoanTerms = async (req, res) => {
     const { accepted, userId } = req.body;
     try {
         // check for miss request
@@ -204,12 +195,12 @@ const acceptLoanTerms = (req, res) => __awaiter(void 0, void 0, void 0, function
             return res.status(400).json({ status: "Error", message: "Missing required fields" });
         }
         // check if the user exist
-        const user = yield userModel_1.default.findById(userId);
+        const user = await userModel_1.default.findById(userId);
         if (!user) {
             return res.status(404).json({ status: "Error", message: "User not found" });
         }
         // check if user has a form id
-        const checkForm = yield formModel_1.default.findOne({ User: userId });
+        const checkForm = await formModel_1.default.findOne({ User: userId });
         if (checkForm) {
             return res.status(202).json({ status: "Ok", formId: `${checkForm._id}`, message: 'User has form' });
         }
@@ -217,16 +208,16 @@ const acceptLoanTerms = (req, res) => __awaiter(void 0, void 0, void 0, function
             agreed_terms: accepted,
             User: userId,
         });
-        const saved = yield newForm.save();
+        const saved = await newForm.save();
         res.status(200).json({ status: "Ok", formId: `${saved._id}`, message: " Successful created form!" });
     }
     catch (error) {
         console.error('Error getting images:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.acceptLoanTerms = acceptLoanTerms;
-const checkLoanStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const checkLoanStatus = async (req, res) => {
     const { formId } = req.body;
     try {
         const checkStatus = formModel_1.default.find({ _id: formId, agreed_terms: true });
@@ -238,5 +229,5 @@ const checkLoanStatus = (req, res) => __awaiter(void 0, void 0, void 0, function
         console.error('Error getting images:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.checkLoanStatus = checkLoanStatus;

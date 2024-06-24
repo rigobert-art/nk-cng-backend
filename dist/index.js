@@ -50,10 +50,10 @@ app.use("/api/v1/loan", loanRoute_1.default);
 app.use("/api/v1/form", formRoute_1.default);
 app.use("/api/v1/guarantor", guarantorRoute_1.default);
 app.use("/api/v1/vehicle", vehicleRoute_1.default);
-app.use(express_1.default.static("/mnt/c/Users/Rigobert Kiata/Desktop/lmsVince/nk-cng-client/build"));
+app.use(express_1.default.static("/dist"));
 app.get("*", (req, res) => {
     res.sendFile("index.html", {
-        root: "/mnt/c/Users/Rigobert Kiata/Desktop/lmsVince/nk-cng-client/build",
+        root: "/dist/public",
     });
 });
 // Error handling middleware

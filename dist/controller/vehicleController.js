@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -25,7 +16,7 @@ const storage = multer_1.default.diskStorage({
     }
 });
 exports.upload = (0, multer_1.default)({ storage });
-const createVehicle = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const createVehicle = async (req, res) => {
     try {
         const { make, model, year, vin, color } = req.body;
         const registrationCard = req.file;
@@ -40,33 +31,33 @@ const createVehicle = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             color,
             registrationCardPath: registrationCard.path,
         });
-        yield vehicle.save();
+        await vehicle.save();
         res.status(201).json(vehicle);
     }
     catch (error) {
         console.error('Error creating vehicle:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.createVehicle = createVehicle;
-const getVehicles = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getVehicles = async (req, res) => {
     try {
-        const vehicles = yield vehicleModel_1.default.find();
+        const vehicles = await vehicleModel_1.default.find();
         res.status(200).json(vehicles);
     }
     catch (error) {
         console.error('Error fetching vehicles:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.getVehicles = getVehicles;
-const getVehicleById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getVehicleById = async (req, res) => {
     try {
         const { id } = req.params;
         if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: 'Invalid ID' });
         }
-        const vehicle = yield vehicleModel_1.default.findById(id);
+        const vehicle = await vehicleModel_1.default.findById(id);
         if (!vehicle) {
             return res.status(404).json({ message: 'Vehicle not found' });
         }
@@ -76,16 +67,16 @@ const getVehicleById = (req, res) => __awaiter(void 0, void 0, void 0, function*
         console.error('Error fetching vehicle:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.getVehicleById = getVehicleById;
-const updateVehicle = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateVehicle = async (req, res) => {
     try {
         const { id } = req.params;
         const updates = req.body;
         if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: 'Invalid ID' });
         }
-        const vehicle = yield vehicleModel_1.default.findByIdAndUpdate(id, updates, { new: true });
+        const vehicle = await vehicleModel_1.default.findByIdAndUpdate(id, updates, { new: true });
         if (!vehicle) {
             return res.status(404).json({ message: 'Vehicle not found' });
         }
@@ -95,15 +86,15 @@ const updateVehicle = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         console.error('Error updating vehicle:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.updateVehicle = updateVehicle;
-const deleteVehicle = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteVehicle = async (req, res) => {
     try {
         const { id } = req.params;
         if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: 'Invalid ID' });
         }
-        const vehicle = yield vehicleModel_1.default.findByIdAndDelete(id);
+        const vehicle = await vehicleModel_1.default.findByIdAndDelete(id);
         if (!vehicle) {
             return res.status(404).json({ message: 'Vehicle not found' });
         }
@@ -113,5 +104,5 @@ const deleteVehicle = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         console.error('Error deleting vehicle:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+};
 exports.deleteVehicle = deleteVehicle;

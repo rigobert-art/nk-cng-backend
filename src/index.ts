@@ -55,15 +55,11 @@ app.use("/api/v1/form", formRoute);
 app.use("/api/v1/guarantor", guarantorRoute);
 app.use("/api/v1/vehicle", vehicleRoute);
 
-app.use(
-	express.static(
-		"/mnt/c/Users/Rigobert Kiata/Desktop/lmsVince/nk-cng-client/build"
-	)
-);
+app.use(express.static("/dist"));
 
 app.get("*", (req, res) => {
 	res.sendFile("index.html", {
-		root: "/mnt/c/Users/Rigobert Kiata/Desktop/lmsVince/nk-cng-client/build",
+		root: "/dist/public",
 	});
 });
 
