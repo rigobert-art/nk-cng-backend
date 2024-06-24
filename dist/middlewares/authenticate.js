@@ -3,8 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-var jwtUtils_1 = require("../utils/jwtUtils");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const jwtUtils_1 = require("../utils/jwtUtils");
 /**
  * Middleware function to authenticate requests.
  * It checks for a valid JWT token in the 'Authorization' header of the request.
@@ -15,13 +15,13 @@ var jwtUtils_1 = require("../utils/jwtUtils");
  * @param {Response} res - The Express response object.
  * @param {NextFunction} next - The next middleware function in the chain.
  */
-var authenticate = function (req, res, next) {
-    var authHeader = req.headers.authorization;
+const authenticate = (req, res, next) => {
+    const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
-    var token = authHeader.split(' ')[1];
-    jsonwebtoken_1.default.verify(token, jwtUtils_1.JWT_SECRET, function (err, decoded) {
+    const token = authHeader.split(' ')[1];
+    jsonwebtoken_1.default.verify(token, jwtUtils_1.JWT_SECRET, (err, decoded) => {
         if (err) {
             return res.status(401).json({ message: 'Invalid token' });
         }

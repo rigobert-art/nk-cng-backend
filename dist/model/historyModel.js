@@ -23,8 +23,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var mongoose_1 = __importStar(require("mongoose"));
-var HistorySchema = new mongoose_1.Schema({
+const mongoose_1 = __importStar(require("mongoose"));
+const HistorySchema = new mongoose_1.Schema({
     User: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User',

@@ -3,10 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var express_1 = __importDefault(require("express"));
-var formController_1 = require("../controller/formController");
-var storage_1 = require("../middlewares/storage");
-var router = express_1.default.Router();
+const express_1 = __importDefault(require("express"));
+const formController_1 = require("../controller/formController");
+const storage_1 = require("../middlewares/storage");
+const router = express_1.default.Router();
 router.post('/personal', formController_1.personalForm);
 router.post('/personal/upload', storage_1.uploadMiddleware.fields([
     { name: 'frontId', maxCount: 1 },
