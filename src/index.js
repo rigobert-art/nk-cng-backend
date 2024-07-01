@@ -59,23 +59,6 @@ app.get("*", (req, res) => {
 	});
 });
 // Error handling middleware
-// app.use(
-// 	(
-// 		err: any,
-// 		req: express.Request,
-// 		res: express.Response,
-// 		next: express.NextFunction
-// 	) => {
-// 		const statusCode = err.statusCode || 500;
-// 		const message = err.message || "Internal Server Error";
-// 		res.status(statusCode).json({
-// 			error: {
-// 				status: statusCode,
-// 				message: message,
-// 			},
-// 		});
-// 	}
-// );
 app.use((err, req, res, next) => {
 	const statusCode = err.statusCode || 500;
 	const message = err.message || "Internal Server Error";
@@ -88,13 +71,12 @@ app.use((err, req, res, next) => {
 });
 // Connect to MongoDB and start server
 const mongoose = require("mongoose");
-const dbURi = process.env.MONGO_URI;
+const dbURI = process.env.MONGO_URI;
 mongoose
-	.connect(dbURi, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
+	.connect(dbURI, {
 		serverSelectionTimeoutMS: 5000,
-		family: 4, // Keep trying to send operations for 5 seconds
+		socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+		family: 4, // Use IPv4, skip trying IPv6
 	})
 	.then(() => {
 		server.listen(port, () => {

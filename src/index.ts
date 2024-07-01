@@ -1,7 +1,6 @@
-import express from "express";
+import express, {Request, Response, NextFunction} from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
-import multer from "multer";
 import cors from "cors";
 import http from "http";
 import SocketIO from "socket.io";
@@ -16,7 +15,6 @@ import loanRoute from "./route/loanRoute";
 import formRoute from "./route/formRoute";
 import guarantorRoute from "./route/guarantorRoute";
 import vehicleRoute from "./route/vehicleRoute";
-import Form from "./model/formModel";
 
 dotenv.config();
 
@@ -31,7 +29,6 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(cors({origin: "*"}));
 app.use(cookieParser());
-
 app.use(express.static(path.join(__dirname, "public")));
 
 const server = http.createServer(app);
@@ -51,7 +48,6 @@ app.get("/", (req, res) => {
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/superuser", superRoute);
 app.use("/api/v1/loan", loanRoute);
-// app.use('/api/v1/sms', smsRoute);
 app.use("/api/v1/form", formRoute);
 app.use("/api/v1/guarantor", guarantorRoute);
 app.use("/api/v1/vehicle", vehicleRoute);
@@ -65,7 +61,7 @@ app.get("*", (req, res) => {
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 	const statusCode = err.statusCode || 500;
 	const message = err.message || "Internal Server Error";
 
@@ -78,11 +74,12 @@ app.use((err, req, res, next) => {
 });
 
 // Connect to MongoDB and start server
-const dbURI = process.env.MONGO_URI;
+const dbURI = process.env.MONGO_URI as string;
 
 mongoose
 	.connect(dbURI, {
-		serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+		serverSelectionTimeoutMS: 5000,
+		socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
 		family: 4, // Use IPv4, skip trying IPv6
 	})
 	.then(() => {

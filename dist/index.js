@@ -4,15 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-// import mongoose from "mongoose";
 const dotenv_1 = __importDefault(require("dotenv"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = __importDefault(require("socket.io"));
-const cookieParser = require("cookie-parser");
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const path_1 = __importDefault(require("path"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const userRoute_1 = __importDefault(require("./route/userRoute"));
 const superuserRoute_1 = __importDefault(require("./route/superuserRoute"));
 const loanRoute_1 = __importDefault(require("./route/loanRoute"));
@@ -29,7 +29,7 @@ app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({ origin: "*" }));
-app.use(cookieParser());
+app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.default.Server(server, {
@@ -42,11 +42,10 @@ app.set("io", io);
 app.get("/", (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "public", "index.html"));
 });
-//routes
+// Routes
 app.use("/api/v1/user", userRoute_1.default);
 app.use("/api/v1/superuser", superuserRoute_1.default);
 app.use("/api/v1/loan", loanRoute_1.default);
-// app.use('/api/v1/sms', smsRoute);
 app.use("/api/v1/form", formRoute_1.default);
 app.use("/api/v1/guarantor", guarantorRoute_1.default);
 app.use("/api/v1/vehicle", vehicleRoute_1.default);
@@ -57,23 +56,6 @@ app.get("*", (req, res) => {
     });
 });
 // Error handling middleware
-// app.use(
-// 	(
-// 		err: any,
-// 		req: express.Request,
-// 		res: express.Response,
-// 		next: express.NextFunction
-// 	) => {
-// 		const statusCode = err.statusCode || 500;
-// 		const message = err.message || "Internal Server Error";
-// 		res.status(statusCode).json({
-// 			error: {
-// 				status: statusCode,
-// 				message: message,
-// 			},
-// 		});
-// 	}
-// );
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -85,14 +67,12 @@ app.use((err, req, res, next) => {
     });
 });
 // Connect to MongoDB and start server
-const mongoose = require("mongoose");
-const dbURi = process.env.MONGO_URI;
-mongoose
-    .connect(dbURi, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+const dbURI = process.env.MONGO_URI;
+mongoose_1.default
+    .connect(dbURI, {
     serverSelectionTimeoutMS: 5000,
-    family: 4, // Keep trying to send operations for 5 seconds
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    family: 4, // Use IPv4, skip trying IPv6
 })
     .then(() => {
     server.listen(port, () => {
