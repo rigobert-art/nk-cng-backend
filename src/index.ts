@@ -1,14 +1,14 @@
 import express from "express";
-// import mongoose from "mongoose";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import multer from "multer";
 import cors from "cors";
 import http from "http";
 import SocketIO from "socket.io";
-const cookieParser = require("cookie-parser");
+import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import path from "path";
+import mongoose from "mongoose";
 
 import userRoute from "./route/userRoute";
 import superRoute from "./route/superuserRoute";
@@ -22,6 +22,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;
+
 // Middleware
 app.use(bodyParser.json());
 app.disable("x-powered-by");
@@ -46,7 +47,7 @@ app.get("/", (req, res) => {
 	res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-//routes
+// Routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/superuser", superRoute);
 app.use("/api/v1/loan", loanRoute);
@@ -64,60 +65,31 @@ app.get("*", (req, res) => {
 });
 
 // Error handling middleware
-// app.use(
-// 	(
-// 		err: any,
-// 		req: express.Request,
-// 		res: express.Response,
-// 		next: express.NextFunction
-// 	) => {
-// 		const statusCode = err.statusCode || 500;
-// 		const message = err.message || "Internal Server Error";
+app.use((err, req, res, next) => {
+	const statusCode = err.statusCode || 500;
+	const message = err.message || "Internal Server Error";
 
-// 		res.status(statusCode).json({
-// 			error: {
-// 				status: statusCode,
-// 				message: message,
-// 			},
-// 		});
-// 	}
-// );
-
-app.use(
-	(
-		err: any,
-		req: express.Request,
-		res: express.Response,
-		next: express.NextFunction
-	) => {
-		const statusCode = err.statusCode || 500;
-		const message = err.message || "Internal Server Error";
-
-		res.status(statusCode).json({
-			error: {
-				status: statusCode,
-				message: message,
-			},
-		});
-	}
-);
+	res.status(statusCode).json({
+		error: {
+			status: statusCode,
+			message: message,
+		},
+	});
+});
 
 // Connect to MongoDB and start server
-const mongoose = require("mongoose");
-const dbURi = process.env.MONGO_URI;
+const dbURI = process.env.MONGO_URI;
 
 mongoose
-	.connect(dbURi, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-		serverSelectionTimeoutMS: 5000,
-		family: 4, // Keep trying to send operations for 5 seconds
+	.connect(dbURI, {
+		serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+		family: 4, // Use IPv4, skip trying IPv6
 	})
 	.then(() => {
 		server.listen(port, () => {
 			console.log(`Server running on port ${port}`);
 		});
 	})
-	.catch((error: Error) => {
+	.catch((error) => {
 		console.error("Error connecting to MongoDB:", error.message);
 	});
